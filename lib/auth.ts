@@ -57,9 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setData()
 
     return () => {
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
-  }, [])
+  }, [supabase, router])
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -71,12 +71,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push("/dashboard")
     }
 
-    return { data: data.session, error }
+    return { data: data?.session ?? null, error }
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/login")
+    try {
+      await supabase.auth.signOut()
+      router.push("/login")
+    } catch (error) {
+      console.error("Sign out error:", error)
+    }
   }
 
   const value = {
